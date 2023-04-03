@@ -1,0 +1,209 @@
+
+import turtle
+import random
+
+background = turtle.Turtle() 
+screen = turtle.Screen()
+screen.setup(650, 650)                           # setting up size of the screen
+
+paddle_shape =((0, -50), (0, 50), (20, 50), (20, -50))   # making  a custom shape for the horizontal pong paddle_shape
+turtle.register_shape('paddle_shape', paddle_shape)
+
+
+
+# player 1 paddle_shape setup 
+player1 = turtle.Turtle()
+p1_xpos = 0
+
+# player 2 paddle_shape setup
+player2 = turtle.Turtle()
+p2_xpos = 0
+
+def player_setup(player, colour, xpos, ypos, orientation):
+  player.left(orientation)
+  player.penup()
+  player.setposition(xpos,ypos)
+  player.pendown()
+  player.pencolor(colour)
+  player.color(colour)
+  player.shape("paddle_shape")
+  player.speed(10)
+  player.penup()
+  
+# function for player movement left and right
+def player_moveleft(player, xpos, ypos):
+  p_xpos = player.xcor()
+  if p_xpos < 270 and p_xpos > -270:
+    player.forward(-50)
+  else: 
+    player.setposition(xpos, ypos)
+
+
+def player_moveright(player, xpos, ypos):
+  p_xpos = player.xcor()
+  if p_xpos < 270 and p_xpos > -270:
+    player.forward(50)
+  else:
+    player.setposition(xpos, ypos)
+
+
+# player 3 paddle setup  
+player3 = turtle.Turtle()
+p3_ypos = 0
+# player 4 paddle setup
+player4 = turtle.Turtle()
+p4_ypos = 0
+
+# function for player movement up and down
+def player_moveup(player, xpos, ypos):
+  p_ypos = player.ycor()
+  if p_ypos < 270 and p_ypos > -270:
+    player.forward(50)
+  else:
+    player.setposition(xpos ,ypos)
+
+def player_movedown(player, xpos, ypos):
+  p_ypos = player.ycor()
+  if p_ypos < 270 and p_ypos > -270:
+    player.forward(-50)
+  else:
+    player.setposition(xpos, ypos)
+
+
+#function for telling the player what keys to move their paddle_shape
+text = turtle.Turtle()
+def movement_text():
+  text.penup()
+  text.speed(0)
+  text.pencolor("red")
+  text.setposition(-260,265)
+  text.write("Q",font =("impact",20,"normal"))
+  text.setposition(240,265)
+  text.write("W",font =("impact",20,"normal"))
+  text.pencolor("blue")
+  text.setposition(-260,-294)
+  text.write("O",font =("impact",20,"normal"))
+  text.setposition(240,-294)
+  text.write("P",font =("impact",20,"normal"))
+  text.pencolor("yellow")
+  text.setposition(270,220)
+  text.write("K",font =("impact",20,"normal"))
+  text.setposition(270,-240)
+  text.write("M",font =("impact",20,"normal")) 
+  text.pencolor("green")
+  text.setposition(-270,220)
+  text.write("A",font =("impact",20,"normal"))
+  text.setposition(-270,-240)
+  text.write("Z",font =("impact",20,"normal")) 
+  text.pencolor("black")  
+
+# setup for the ball
+ball = turtle.Turtle()
+ball_angle = random.randint(0, 360)
+ball.shape("circle")
+ball.pencolor("orange")
+ball.color("orange")
+ball.penup()
+ball.setposition(0,0)
+ball.left(ball_angle)
+
+def moveballwhentouch(player):
+    if player.distance(ball) < 40:
+        print("bounce")
+        ball.left(random.randint(135, 225))
+
+# detecting if the ball goes out of bounds
+def moveballwhentouchwall():
+  ball_xpos = ball.xcor()
+  ball_ypos = ball.ycor()
+  if ball_xpos > 300 or ball_xpos < -300:
+    print("out of bounds")
+    ball.speed(0)
+    ball.left(random.randint(-360, 360))
+    ball.setpos(0,0)
+
+  elif ball_ypos > 300 or ball_ypos < -300:
+    print("out of bounds") 
+    ball.speed(0) 
+    ball.left(random.randint(-360, 360))
+    ball.setpos(0,0)
+	
+
+# function for ball movement
+def move_ball():
+  
+  ball.forward(5) # pixels the ball wil move 
+  print (ball.xcor(), ball.ycor())
+  moveballwhentouchwall()
+
+  moveballwhentouch(player1)
+  moveballwhentouch(player2)
+  moveballwhentouch(player3)
+  moveballwhentouch(player4)
+  screen.ontimer(move_ball, 1) # how often this function is called(every 1 millisecond)
+
+def setup():                                     
+  # setting up the white border and black background
+  screen.bgcolor("white")                        
+  background.pencolor("black")
+  background.penup()
+  background.speed(0)
+  background.setposition(300,300)
+  background.pendown()
+  background.fillcolor("black")
+  background.begin_fill()
+  background.setposition(300,300)
+  background.setposition(300,-300)
+  background.setposition(-300,-300)
+  background.setposition(-300,300)
+  background.penup()
+  background.end_fill()
+
+
+diagonal = turtle.Turtle()
+def diagonal_line_setup():
+    diagonal.setposition(0,0)
+    diagonal.pencolor("white")
+    diagonal.color("white")
+    diagonal.left(45)
+    diagonal.penup()
+    diagonal.speed(0)
+    diagonal.pensize(10)
+
+    for i in range (4):
+      diagonal.left(90)
+      diagonal.forward(10)
+      for i in range (11):
+        diagonal.pendown()
+        diagonal.forward(20)
+        diagonal.penup()
+        diagonal.forward(20)
+      diagonal.setposition(0,0)  
+    
+#  calls all functions
+setup()
+diagonal_line_setup()
+player_setup(player1, "red", 0, 290, 0)
+player_setup(player2,"blue", 0, -270, 0)
+player_setup(player3, "yellow", 270, 0, 90)
+player_setup(player4, "green", -290, 0,90 )
+movement_text()
+
+# lambda used to pass arguument to onkeypress, onkeypress does not accept arguments to call back functions
+
+screen.onkeypress(lambda player = player1: player_moveleft(player1, 0, 290), "q")            # function calls for player 1 movement
+screen.onkeypress(lambda player = player1: player_moveright(player1, 0, 290), "w")
+
+screen.onkeypress(lambda player = player2: player_moveleft(player2, 0, -270), "o")             # function calls for player 2 movement
+screen.onkeypress(lambda player = player2: player_moveright(player2,0, -270), "p")
+
+screen.onkeypress(lambda player = player3: player_moveup(player3, 270, 0), "k")               # function calls for player 3 movement
+screen.onkeypress(lambda player = player3: player_movedown(player3, 270, 0), "m")
+
+screen.onkeypress(lambda player = player4: player_moveup(player4, -290, 0), "a")               # function calls for player 3 movement
+screen.onkeypress(lambda player = player4: player_movedown(player4, -290, 0), "z")
+
+screen.listen()
+
+move_ball()
+input(
